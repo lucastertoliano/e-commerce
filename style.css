@@ -338,4 +338,8 @@ main{
     color: var(--brand_color);
     font-size: 14px;
 }
+#endereco-resultado {
+    display: none;
+    margin-top: 12px;
+}
 
