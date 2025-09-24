@@ -39,8 +39,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-
-
 }
 
 .hero_content {
@@ -77,15 +75,12 @@ main{
 .heading__produtos p{
     font-size: 24px;
 }
-.lista__produtos{
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    flex-wrap: wrap;
-    gap: 32px;
-    align-items: center;
-    justify-content: center;
+.lista__produtos {
+    width: 80%;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
 }
 .card__produto{
     width: 334px;
@@ -118,8 +113,6 @@ main{
 
 }
 
-
-/* Responsividade */
 @media (max-width: 768px) {
     
     .top_fixed {
@@ -206,3 +199,143 @@ main{
     }
 
 }
+.card__produto-link {
+    text-decoration: none;
+    color: inherit;
+}
+.produto__detalhes {
+    width: 80%;
+    max-width: 1100px;
+    margin: 80px auto; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+}
+.produto__detalhes__imagens {
+    flex: 1.2;
+}
+.produto__detalhes__imagens figure {
+    background-color: transparent;
+}
+
+.produto__detalhes__imagens img {
+    width: 100%;
+}
+.produto__detalhes__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+.produto__detalhes__info .detalhes h4 {
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--dark);
+}
+
+.produto__detalhes__info .detalhes h5 {
+    font-size: 16px;
+    color: var(--brand_color);
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.produto__detalhes__info .detalhes h6 {
+    font-size: 32px;
+    font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif;
+    margin-top: 16px;
+}
+
+.tamanho h5 {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+.tamanho__opcoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.tamanho__opcoes span {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #EAEAEA;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.tamanho__opcoes span:hover {
+    border-color: var(--dark);
+}
+.botao button {
+    width: 100%;
+    height: 50px;
+    background-color: var(--brand_color);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+.botao button:hover {
+    filter: brightness(1.1);
+}
+.descricao p, .descricao li {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #4A4A4A;
+}
+.descricao ul {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+.frete summary {
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    padding: 8px 0;
+}
+.frete summary::-webkit-details-marker {
+    display: none;
+}
+.frete summary::before {
+    content: '►';
+    margin-right: 10px;
+    display: inline-block;
+    transition: transform 0.2s;
+}
+.frete[open] > summary::before {
+    transform: rotate(90deg);
+}
+.frete input {
+    width: 100%;
+    height: 40px;
+    padding-inline: 10px;
+    margin-block: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.frete button {
+    height: 40px;
+    padding-inline: 20px;
+    background-color: var(--dark);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.frete a {
+    display: block;
+    margin-top: 8px;
+    color: var(--brand_color);
+    font-size: 14px;
+}
+
