@@ -27,7 +27,13 @@
         </div>    
     </section>
 
-    
+    <div class="header-content">
+        <a href="index.html" class="logo-link">FastShoes</a>
+        <button id="abrir-carrinho-btn" class="carrinho-btn">
+            <img src="assets/cart-icon.png" alt="Ícone do Carrinho">
+            <span id="contagem-carrinho" class="contagem-carrinho">0</span>
+        </button>
+    </div>
 
    <main>
      <section class="produtos">
@@ -38,6 +44,38 @@
                 <p>A FastShoes é a escolha certa para os amantes de sneakers que buscam estilo e conforto</p>
             </section>
         </div>
+
+
+<div class="filtros-container">
+
+  <div class="filtros">
+    
+    <div class="filtro-item">
+      <label for="search-input">Buscar:</label>
+      <input type="text" id="search-input" placeholder="Digite aqui...">
+    </div>
+
+        <div class="filtro-item">
+        <label for="category-filter">Categoria:</label>
+        <select id="category-filter">
+            <option value="">Todas</option>
+            <option value="tenis">Tênis</option>
+        </select>
+        </div>
+
+        <div class="filtro-item">
+        <label for="sort-filter">Ordenar por:</label>
+        <select id="sort-filter">
+            <option value="default">Padrão</option>
+            <option value="preco">Preço</option>
+            <option value="popularidade">Popularidade</option>
+        </select>
+        </div>
+    </div>
+</div>
+
+<section class="lista__produtos">
+    </section>
         <section class="lista__produtos">
 
             <a href="produtos-detalhes.html?id=1" class="card__produto-link">
@@ -140,6 +178,25 @@
 
         </section>
     </main>
+
+            <div id="overlay" class="overlay"></div>
+
+            <div id="carrinho-sidebar" class="carrinho-sidebar">
+                <div class="carrinho-header">
+                    <h3>Seu Carrinho</h3>
+                    <button id="fechar-carrinho-btn" class="fechar-btn">&times;</button>
+                </div>
+                <div id="carrinho-corpo" class="carrinho-corpo">
+                    <p class="carrinho-vazio-msg">Seu carrinho está vazio.</p>
+                </div>
+                <div class="carrinho-footer">
+                    <div class="carrinho-total-sidebar">
+                        <span>Total:</span>
+                        <span id="total-carrinho-sidebar">R$ 0,00</span>
+                    </div>
+                    <button class="finalizar-compra-btn">Finalizar Compra</button>
+                </div>
+            </div>
 
      <footer class="site-footer">
         <div class="footer-container">

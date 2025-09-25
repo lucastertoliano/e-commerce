@@ -1,54 +1,8 @@
-console.log('Jordan Shoes')
-
-const formatCurrency = (number) => {
-  return number.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-    })
-}
-
-const getProducts = async () => {
-    const response = await fetch('js/products.json')
-    const data = await response.json()
-    return data
-}
-
-const generateCard = async () => {
-
-    const products = await getProducts()
-
-    products.map(product => {
-        let card = document.createElement('div')
-        card.classList.add('card__produto')
-        
-        card.innerHTML = `
-        <figure>
-            <img src="images/${product.image}" alt="${product.product_name}" />
-        </figure>
-
-        <div class="card__produto_detalhes">
-            <h4>${product.product_name}</h4>
-            <h5>${product.product_model}</h5>
-        </div>
-
-        <h6>R$ ${product.price}</h6>
-        `
-
-        const listaProdutos = document.querySelector('.lista__produtos')
-        listaProdutos.appendChild(card)
-
-    })
-   
-}
-generateCard()
-
-// .produto.js
-
 const produtos = [
     {
         id: 1,
         nome: "Tênis Adidas Adizero Adios Pro 4 Feminino - Branco e Preto",
-        categoria: "Tênis de corrida",
+        categoria: "Corrida",
         preco: "R$1.999,99",
         imagem: "assets/Tênis Adidas Adizero Adios Pro 4 Feminino - Branco+Preto.png",
         descricao: "Este tênis de corrida oferece o melhor em tecnologia e conforto para seus treinos e competições. Com amortecimento responsivo e um design leve, ele te impulsiona para frente a cada passada."
@@ -56,7 +10,7 @@ const produtos = [
     {
         id: 2,
         nome: "Tênis Asics Gel Nimbus 27 Masculino - Preto",
-        categoria: "Tênis de corrida",
+        categoria: "Corrida",
         preco: "R$1.079,99",
         imagem: "assets/Tênis Asics Gel Nimbus 27 Masculino - Preto.png",
         descricao: "O Asics Gel Nimbus 27 é sinônimo de conforto máximo. Ideal para longas distâncias, sua tecnologia de amortecimento em GEL absorve o impacto com maestria."
@@ -64,7 +18,7 @@ const produtos = [
     {
         id: 3,
         nome: "Tênis Fila Float Maxxi 2 Pro Masculino - Laranja e Azul",
-        categoria: "Tênis de corrida",
+        categoria: "Corrida",
         preco: "R$854,99",
         imagem: "assets/Tênis Fila Float Maxxi 2 Pro Masculino - Laranja+Azul.png",
         descricao: "Com a tecnologia Float, este tênis da Fila proporciona uma sensação de leveza e responsividade incríveis, otimizando sua performance na corrida."
@@ -72,7 +26,7 @@ const produtos = [
     {
         id: 4,
         nome: "Tênis Hoka Torrent 3 Masculino - Azul",
-        categoria: "Tênis de corrida",
+        categoria: "Trilha",
         preco: "R$749,99",
         imagem: "assets/Tênis Hoka Torrent 3 Masculino - Azul.png",
         descricao: "Perfeito para trilhas desafiadoras, o Hoka Torrent 3 oferece aderência excepcional e amortecimento leve para uma corrida ágil e segura em qualquer terreno."
@@ -80,7 +34,7 @@ const produtos = [
     {
         id: 5,
         nome: "Tênis New Balance Fresh Foam X 1080 V14 Masculino - Cinza e Azul",
-        categoria: "Tênis de corrida",
+        categoria: "Casual",
         preco: "R$1.299,99",
         imagem: "assets/Tênis New Balance Fresh Foam X 1080 V14 Masculino - Cinza+Azul.png",
         descricao: "O Fresh Foam X 1080 V14 é o auge do conforto para corredores. Sua espuma macia e responsiva garante uma passada suave, ideal para treinos diários e longas distâncias."
@@ -88,90 +42,153 @@ const produtos = [
     {
         id: 6,
         nome: "Tênis Olympikus Corre Supra Unissex - Verde Limão",
-        categoria: "Tênis de corrida",
+        categoria: "Performance",
         preco: "R$949,99",
         imagem: "assets/Tênis Olympikus Corre Supra Unissex - Verde Limão.png",
         descricao: "Desenvolvido com tecnologia de ponta, o Olympikus Corre Supra foi feito para velocidade. Sua placa de propulsão oferece o máximo de retorno de energia para quebrar seus recordes."
     }
 ];
 
-// .detalhes.js
+document.addEventListener('DOMContentLoaded', () => {
 
-window.addEventListener('DOMContentLoaded', () => {
+    const sistemaCarrinho = {
+        carrinho: JSON.parse(localStorage.getItem('carrinhoFastShoes')) || [],
+        elementos: {
+            abrirBtn: document.getElementById('abrir-carrinho-btn'),
+            fecharBtn: document.getElementById('fechar-carrinho-btn'),
+            sidebar: document.getElementById('carrinho-sidebar'),
+            overlay: document.getElementById('overlay'),
+            corpo: document.getElementById('carrinho-corpo'),
+            totalEl: document.getElementById('total-carrinho-sidebar'),
+            contagemEl: document.getElementById('contagem-carrinho'),
+        },
+
+        init() {
+            this.configurarEventListeners();
+            this.renderizar();
+        },
+
+        configurarEventListeners() {
+            if (this.elementos.abrirBtn) this.elementos.abrirBtn.addEventListener('click', () => this.abrir());
+            if (this.elementos.fecharBtn) this.elementos.fecharBtn.addEventListener('click', () => this.fechar());
+            if (this.elementos.overlay) this.elementos.overlay.addEventListener('click', () => this.fechar());
+            if (this.elementos.corpo) {
+                this.elementos.corpo.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('aumentar-qtd')) this.atualizarQuantidade(e.target.dataset.id, 1);
+                    if (e.target.classList.contains('diminuir-qtd')) this.atualizarQuantidade(e.target.dataset.id, -1);
+                    if (e.target.classList.contains('remover-item-sidebar')) this.removerItem(e.target.dataset.id);
+                });
+            }
+        },
+
+        abrir() {
+            if (this.elementos.sidebar) this.elementos.sidebar.classList.add('is-open');
+            if (this.elementos.overlay) this.elementos.overlay.classList.add('is-open');
+        },
+        fechar() {
+            if (this.elementos.sidebar) this.elementos.sidebar.classList.remove('is-open');
+            if (this.elementos.overlay) this.elementos.overlay.classList.remove('is-open');
+        },
+        adicionarItem(id) {
+            const idNumerico = parseInt(id);
+            const itemExistente = this.carrinho.find(item => item.id === idNumerico);
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                this.carrinho.push({ id: idNumerico, quantidade: 1 });
+            }
+            this.salvarErenderizar();
+            this.abrir();
+        },
+        atualizarQuantidade(id, mudanca) {
+            const idNumerico = parseInt(id);
+            const item = this.carrinho.find(item => item.id === idNumerico);
+            if (item) {
+                item.quantidade += mudanca;
+                if (item.quantidade <= 0) this.removerItem(id);
+                else this.salvarErenderizar();
+            }
+        },
+        removerItem(id) {
+            const idNumerico = parseInt(id);
+            this.carrinho = this.carrinho.filter(item => item.id !== idNumerico);
+            this.salvarErenderizar();
+        },
+        salvarErenderizar() {
+            localStorage.setItem('carrinhoFastShoes', JSON.stringify(this.carrinho));
+            this.renderizar();
+        },
+        renderizar() {
+            const corpo = this.elementos.corpo;
+            if (!corpo) return;
+            corpo.innerHTML = '';
+            let total = 0;
+            if (this.carrinho.length === 0) {
+                corpo.innerHTML = '<p class="carrinho-vazio-msg">Seu carrinho está vazio.</p>';
+            } else {
+                this.carrinho.forEach(item => {
+                    const produto = produtos.find(p => p.id === item.id);
+                    if (!produto) return;
+                    const precoNumerico = parseFloat(produto.preco.replace('R$', '').replace('.', '').replace(',', '.'));
+                    total += item.quantidade * precoNumerico;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'carrinho-item-sidebar';
+                    itemDiv.innerHTML = `
+                        <img src="${produto.imagem}" alt="${produto.nome}">
+                        <div class="carrinho-item-info-sidebar">
+                            <h4>${produto.nome}</h4>
+                            <p>${produto.preco}</p>
+                            <div class="carrinho-quantidade-sidebar">
+                                <button class="diminuir-qtd" data-id="${item.id}">-</button>
+                                <span>${item.quantidade}</span>
+                                <button class="aumentar-qtd" data-id="${item.id}">+</button>
+                            </div>
+                        </div>
+                        <button class="remover-item-sidebar" data-id="${item.id}">Remover</button>
+                    `;
+                    corpo.appendChild(itemDiv);
+                });
+            }
+            const formatadorMoeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+            if (this.elementos.totalEl) this.elementos.totalEl.textContent = formatadorMoeda.format(total);
+            const totalItens = this.carrinho.reduce((acc, item) => acc + item.quantidade, 0);
+            if (this.elementos.contagemEl) this.elementos.contagemEl.textContent = totalItens;
+        }
+    };
+
+    sistemaCarrinho.init();
+
+const secaoDetalhes = document.querySelector('.produto__detalhes');
+
+if (secaoDetalhes) {
+    console.log("✅ OK: Bloco da página de detalhes encontrado.");
 
     const params = new URLSearchParams(window.location.search);
-    const produtoId = params.get('id');
-
-    
-    const produto = produtos.find(p => p.id == produtoId);
+    const produtoId = parseInt(params.get('id'));
+    const produto = produtos.find(p => p.id === produtoId);
 
     if (produto) {
-    
-        const imagemProduto = document.getElementById('imagem-produto');
-        const nomeProduto = document.getElementById('nome-produto');
-        const categoriaProduto = document.getElementById('categoria-produto');
-        const precoProduto = document.getElementById('preco-produto');
-        const descricaoProduto = document.getElementById('descricao-produto');
+        console.log("✅ OK: Produto encontrado:", produto);
 
-    
-        imagemProduto.src = produto.imagem;
-        imagemProduto.alt = produto.nome;
-        nomeProduto.innerText = produto.nome;
-        categoriaProduto.innerText = produto.categoria;
-        precoProduto.innerText = produto.preco;
-        descricaoProduto.innerText = produto.descricao;
 
+        document.getElementById('imagem-produto').src = produto.imagem;
+        document.getElementById('nome-produto').innerText = produto.nome;
+
+        document.getElementById('descricao-produto').innerText = produto.descricao;
+        const btnAdicionar = secaoDetalhes.querySelector('.botao button');
+        
+        if (btnAdicionar) {
+            console.log("✅ OK: Botão 'Adicionar ao carrinho' encontrado.");
+            btnAdicionar.addEventListener('click', () => {
+                console.log("➡️ CLIQUE: Adicionando produto com ID:", produtoId);
+                sistemaCarrinho.adicionarItem(produtoId);
+                alert('Produto adicionado! (Teste)');
+            });
+        } else {
+            console.error("❌ ERRO: O botão 'Adicionar ao carrinho' não foi encontrado! Verifique se a estrutura HTML tem a div com class='botao' envolvendo o button.");
+        }
     } else {
-
-        document.querySelector('.produto__detalhes').innerHTML = '<h1>Produto não encontrado!</h1>';
+        console.error("❌ ERRO: Produto não encontrado! Verifique se a URL tem o '?id=' correto (ex: ?id=1).");
     }
-});
-
-// validação do CEP
-
-const cep = document.querySelector('#cep');
-const rua = document.querySelector('#rua');
-const bairro = document.querySelector('#bairro');
-const cidade = document.querySelector('#cidade');
-const estado = document.querySelector('#estado');
-const message = document.querySelector('#message');
-const enderecoResultado = document.querySelector('#endereco-resultado');
-
-cep.addEventListener('focusout', async() => {
-
-    try {
-        const onlyNumbers = /^[0-9]+$/;
-        const cepValid = /^[0-9]{8}$/;
-
-        if(!onlyNumbers.test(cep.value) || !cepValid.test(cep.value)) {
-            throw { cep_error: 'CEP inválido! Digite apenas os 8 números.'};
-        }
-        const response = await fetch(`https://viacep.com.br/ws/${cep.value}/json/`);     
-
-        if(!response.ok) {
-            throw await response.json();
-        } 
-        const responseCep = await response.json();
-
-        if (responseCep.erro) {
-            throw { cep_error: 'CEP não encontrado!' };
-        }
-
-        message.textContent = '';
-        rua.value = responseCep.logradouro;
-        bairro.value = responseCep.bairro;
-        cidade.value = responseCep.localidade;
-        estado.value = responseCep.uf;
-        enderecoResultado.style.display = 'block';
-
-    } catch (error) {
-        if(error?.cep_error) {
-            message.textContent = error.cep_error;
-            enderecoResultado.style.display = 'none';
-            setTimeout(() => {
-                message.textContent = '';
-            }, 5000);
-        } 
-        console.log(error);
-    }
+}
 });
