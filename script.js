@@ -158,37 +158,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sistemaCarrinho.init();
 
-const secaoDetalhes = document.querySelector('.produto__detalhes');
+    const secaoDetalhes = document.querySelector('.produto__detalhes');
 
-if (secaoDetalhes) {
-    console.log("✅ OK: Bloco da página de detalhes encontrado.");
+    if (secaoDetalhes) {
+        console.log("✅ OK: Bloco da página de detalhes encontrado.");
 
-    const params = new URLSearchParams(window.location.search);
-    const produtoId = parseInt(params.get('id'));
-    const produto = produtos.find(p => p.id === produtoId);
+        const params = new URLSearchParams(window.location.search);
+        const produtoId = parseInt(params.get('id'));
+        const produto = produtos.find(p => p.id === produtoId);
 
-    if (produto) {
-        console.log("✅ OK: Produto encontrado:", produto);
+        if (produto) {
+            console.log("✅ OK: Produto encontrado:", produto);
 
 
-        document.getElementById('imagem-produto').src = produto.imagem;
-        document.getElementById('nome-produto').innerText = produto.nome;
+            document.getElementById('imagem-produto').src = produto.imagem;
+            document.getElementById('nome-produto').innerText = produto.nome;
 
-        document.getElementById('descricao-produto').innerText = produto.descricao;
-        const btnAdicionar = secaoDetalhes.querySelector('.botao button');
-        
-        if (btnAdicionar) {
-            console.log("✅ OK: Botão 'Adicionar ao carrinho' encontrado.");
-            btnAdicionar.addEventListener('click', () => {
-                console.log("➡️ CLIQUE: Adicionando produto com ID:", produtoId);
-                sistemaCarrinho.adicionarItem(produtoId);
-                alert('Produto adicionado! (Teste)');
-            });
+            document.getElementById('descricao-produto').innerText = produto.descricao;
+            const btnAdicionar = secaoDetalhes.querySelector('.botao button');
+
+            if (btnAdicionar) {
+                console.log("✅ OK: Botão 'Adicionar ao carrinho' encontrado.");
+                btnAdicionar.addEventListener('click', () => {
+                    console.log("➡️ CLIQUE: Adicionando produto com ID:", produtoId);
+                    sistemaCarrinho.adicionarItem(produtoId);
+                    alert('Produto adicionado! (Teste)');
+                });
+            } else {
+                console.error("❌ ERRO: O botão 'Adicionar ao carrinho' não foi encontrado! Verifique se a estrutura HTML tem a div com class='botao' envolvendo o button.");
+            }
         } else {
-            console.error("❌ ERRO: O botão 'Adicionar ao carrinho' não foi encontrado! Verifique se a estrutura HTML tem a div com class='botao' envolvendo o button.");
+            console.error("❌ ERRO: Produto não encontrado! Verifique se a URL tem o '?id=' correto (ex: ?id=1).");
         }
-    } else {
-        console.error("❌ ERRO: Produto não encontrado! Verifique se a URL tem o '?id=' correto (ex: ?id=1).");
     }
-}
+
+    // === API de CEP ===
+    const cepInput = document.getElementById('cep');
+    const buscarCepBtn = document.querySelector('.frete button');
+    const ruaInput = document.getElementById('rua');
+    const bairroInput = document.getElementById('bairro');
+    const cidadeInput = document.getElementById('cidade');
+    const estadoInput = document.getElementById('estado');
+    const enderecoResultado = document.getElementById('endereco-resultado');
+    const messageEl = document.getElementById('message');
+
+    if (buscarCepBtn) {
+        buscarCepBtn.addEventListener('click', async () => {
+            const cep = cepInput.value.replace(/\D/g, '');
+            if (cep.length !== 8) {
+                messageEl.textContent = "❌ CEP inválido!";
+                enderecoResultado.style.display = "none";
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+
+                if (data.erro) {
+                    messageEl.textContent = "❌ CEP não encontrado!";
+                    enderecoResultado.style.display = "none";
+                    return;
+                }
+
+                // Preenche os campos
+                ruaInput.value = data.logradouro;
+                bairroInput.value = data.bairro;
+                cidadeInput.value = data.localidade;
+                estadoInput.value = data.uf;
+
+                enderecoResultado.style.display = "block";
+                messageEl.textContent = "✅ Endereço encontrado!";
+            } catch (error) {
+                console.error("Erro ao buscar CEP:", error);
+                messageEl.textContent = "❌ Erro ao consultar o CEP!";
+                enderecoResultado.style.display = "none";
+            }
+        });
+    }
+
 });
