@@ -224,10 +224,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const estadoInput = document.getElementById('estado');
     const enderecoResultado = document.getElementById('endereco-resultado');
     const messageEl = document.getElementById('message');
+    const numeroInput = document.getElementById('numero');
+
+
+    cepInput.addEventListener('input', () => {
+        let valor = cepInput.value.replace(/\D/g, ""); // remove tudo que não é número
+        if (valor.length > 5) {
+            valor = valor.replace(/(\d{5})(\d)/, "$1-$2");
+        }
+        cepInput.value = valor;
+    });
+
+    cepInput.addEventListener('keyup', () => {
+        const cep = cepInput.value.replace(/\D/g, "");
+        if (cep.length === 8) {
+            buscarCepBtn.click(); // dispara a busca automaticamente
+        }
+    });
 
     if (buscarCepBtn) {
         buscarCepBtn.addEventListener('click', async () => {
-            const cep = cepInput.value.replace(/\D/g, '');
+            const cep = cepInput.value.replace(/\D/g, "");
             if (cep.length !== 8) {
                 messageEl.textContent = "❌ CEP inválido!";
                 enderecoResultado.style.display = "none";
@@ -252,6 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 enderecoResultado.style.display = "block";
                 messageEl.textContent = "✅ Endereço encontrado!";
+
+                if (numeroInput) numeroInput.focus(); // acessibilidade
             } catch (error) {
                 console.error("Erro ao buscar CEP:", error);
                 messageEl.textContent = "❌ Erro ao consultar o CEP!";
@@ -259,5 +278,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
 });
