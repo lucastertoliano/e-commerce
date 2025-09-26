@@ -51,27 +51,35 @@ const produtos = [
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    const sistemaCarrinho = {
-        carrinho: JSON.parse(localStorage.getItem('carrinhoFastShoes')) || [],
-        elementos: {
-            abrirBtn: document.getElementById('abrir-carrinho-btn'),
-            fecharBtn: document.getElementById('fechar-carrinho-btn'),
-            sidebar: document.getElementById('carrinho-sidebar'),
-            overlay: document.getElementById('overlay'),
-            corpo: document.getElementById('carrinho-corpo'),
-            totalEl: document.getElementById('total-carrinho-sidebar'),
-            contagemEl: document.getElementById('contagem-carrinho'),
-        },
+    class Carrinho {
+        constructor() {
+            this.carrinho = JSON.parse(localStorage.getItem('carrinhoFastShoes')) || [];
+            this.elementos = {
+                abrirBtn: document.getElementById('abrir-carrinho-btn'),
+                fecharBtn: document.getElementById('fechar-carrinho-btn'),
+                sidebar: document.getElementById('carrinho-sidebar'),
+                overlay: document.getElementById('overlay'),
+                corpo: document.getElementById('carrinho-corpo'),
+                totalEl: document.getElementById('total-carrinho-sidebar'),
+                contagemEl: document.getElementById('contagem-carrinho'),
+            };
+        }
 
         init() {
             this.configurarEventListeners();
             this.renderizar();
-        },
+        }
 
         configurarEventListeners() {
-            if (this.elementos.abrirBtn) this.elementos.abrirBtn.addEventListener('click', () => this.abrir());
-            if (this.elementos.fecharBtn) this.elementos.fecharBtn.addEventListener('click', () => this.fechar());
-            if (this.elementos.overlay) this.elementos.overlay.addEventListener('click', () => this.fechar());
+            if (this.elementos.abrirBtn) {
+                this.elementos.abrirBtn.addEventListener('click', () => this.abrir());
+            }
+            if (this.elementos.fecharBtn) {
+                this.elementos.fecharBtn.addEventListener('click', () => this.fechar());
+            }
+            if (this.elementos.overlay) {
+                this.elementos.overlay.addEventListener('click', () => this.fechar());
+            }
             if (this.elementos.corpo) {
                 this.elementos.corpo.addEventListener('click', (e) => {
                     if (e.target.classList.contains('aumentar-qtd')) this.atualizarQuantidade(e.target.dataset.id, 1);
@@ -79,16 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (e.target.classList.contains('remover-item-sidebar')) this.removerItem(e.target.dataset.id);
                 });
             }
-        },
+        }
 
         abrir() {
             if (this.elementos.sidebar) this.elementos.sidebar.classList.add('is-open');
             if (this.elementos.overlay) this.elementos.overlay.classList.add('is-open');
-        },
+        }
+
         fechar() {
             if (this.elementos.sidebar) this.elementos.sidebar.classList.remove('is-open');
             if (this.elementos.overlay) this.elementos.overlay.classList.remove('is-open');
-        },
+        }
+
         adicionarItem(id) {
             const idNumerico = parseInt(id);
             const itemExistente = this.carrinho.find(item => item.id === idNumerico);
@@ -99,7 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             this.salvarErenderizar();
             this.abrir();
-        },
+        }
+
         atualizarQuantidade(id, mudanca) {
             const idNumerico = parseInt(id);
             const item = this.carrinho.find(item => item.id === idNumerico);
@@ -108,53 +119,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (item.quantidade <= 0) this.removerItem(id);
                 else this.salvarErenderizar();
             }
-        },
+        }
+
         removerItem(id) {
             const idNumerico = parseInt(id);
             this.carrinho = this.carrinho.filter(item => item.id !== idNumerico);
             this.salvarErenderizar();
-        },
+        }
+
         salvarErenderizar() {
             localStorage.setItem('carrinhoFastShoes', JSON.stringify(this.carrinho));
             this.renderizar();
-        },
+        }
+
         renderizar() {
             const corpo = this.elementos.corpo;
             if (!corpo) return;
             corpo.innerHTML = '';
             let total = 0;
+
             if (this.carrinho.length === 0) {
                 corpo.innerHTML = '<p class="carrinho-vazio-msg">Seu carrinho está vazio.</p>';
             } else {
                 this.carrinho.forEach(item => {
                     const produto = produtos.find(p => p.id === item.id);
                     if (!produto) return;
+
                     const precoNumerico = parseFloat(produto.preco.replace('R$', '').replace('.', '').replace(',', '.'));
                     total += item.quantidade * precoNumerico;
+
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'carrinho-item-sidebar';
                     itemDiv.innerHTML = `
-                        <img src="${produto.imagem}" alt="${produto.nome}">
-                        <div class="carrinho-item-info-sidebar">
-                            <h4>${produto.nome}</h4>
-                            <p>${produto.preco}</p>
-                            <div class="carrinho-quantidade-sidebar">
-                                <button class="diminuir-qtd" data-id="${item.id}">-</button>
-                                <span>${item.quantidade}</span>
-                                <button class="aumentar-qtd" data-id="${item.id}">+</button>
-                            </div>
+                    <img src="${produto.imagem}" alt="${produto.nome}">
+                    <div class="carrinho-item-info-sidebar">
+                        <h4>${produto.nome}</h4>
+                        <p>${produto.preco}</p>
+                        <div class="carrinho-quantidade-sidebar">
+                            <button class="diminuir-qtd" data-id="${item.id}">-</button>
+                            <span>${item.quantidade}</span>
+                            <button class="aumentar-qtd" data-id="${item.id}">+</button>
                         </div>
-                        <button class="remover-item-sidebar" data-id="${item.id}">Remover</button>
-                    `;
+                    </div>
+                    <button class="remover-item-sidebar" data-id="${item.id}">Remover</button>
+                `;
                     corpo.appendChild(itemDiv);
                 });
             }
+
             const formatadorMoeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
             if (this.elementos.totalEl) this.elementos.totalEl.textContent = formatadorMoeda.format(total);
+
             const totalItens = this.carrinho.reduce((acc, item) => acc + item.quantidade, 0);
             if (this.elementos.contagemEl) this.elementos.contagemEl.textContent = totalItens;
         }
-    };
+    }
+
+    // Instância global do carrinho
+    const sistemaCarrinho = new Carrinho();
+    document.addEventListener('DOMContentLoaded', () => sistemaCarrinho.init());
 
     sistemaCarrinho.init();
 
