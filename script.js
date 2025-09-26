@@ -51,6 +51,75 @@ const produtos = [
 
 document.addEventListener('DOMContentLoaded', () => {
 
+function renderizarProdutos(lista) {
+    const listaProdutos = document.querySelector('.lista__produtos');
+    if (!listaProdutos) return;
+
+    listaProdutos.innerHTML = ""; // limpa a lista
+
+    lista.forEach(produto => {
+        const card = document.createElement('a');
+        card.href = `produtos-detalhes.html?id=${produto.id}`;
+        card.className = "card__produto-link";
+
+        card.innerHTML = `
+            <div class="card__produto">
+                <figure>
+                    <img src="${produto.imagem}" alt="${produto.nome}">
+                </figure>
+                <div class="card__produtos_detalhes">
+                    <h4>${produto.nome}</h4>
+                    <h5>${produto.categoria}</h5>
+                </div>
+                <h6>${produto.preco}</h6>
+            </div>
+        `;
+        listaProdutos.appendChild(card);
+    });
+}
+
+const searchInput = document.getElementById('search-input');
+const categoryFilter = document.getElementById('category-filter');
+const sortFilter = document.getElementById('sort-filter');
+
+// Função para aplicar filtros
+function aplicarFiltros() {
+    let listaFiltrada = [...produtos];
+
+    // Busca por nome do produto
+    const termo = searchInput.value.toLowerCase();
+    if (termo) {
+        listaFiltrada = listaFiltrada.filter(p => p.nome.toLowerCase().includes(termo));
+    }
+
+    // Filtro por categoria de produto
+    const categoria = categoryFilter.value;
+    if (categoria) {
+        listaFiltrada = listaFiltrada.filter(p => p.categoria.toLowerCase() === categoria.toLowerCase());
+    }
+
+    //  Ordenação
+    if (sortFilter.value === "preco") {
+        listaFiltrada.sort((a, b) => {
+            const pa = parseFloat(a.preco.replace("R$", "").replace(".", "").replace(",", "."));
+            const pb = parseFloat(b.preco.replace("R$", "").replace(".", "").replace(",", "."));
+            return pa - pb;
+        });
+    } else if (sortFilter.value === "popularidade") {
+        listaFiltrada.sort((a, b) => a.id - b.id);
+    }
+
+    renderizarProdutos(listaFiltrada);
+}
+
+// Listeners
+if (searchInput) searchInput.addEventListener("input", aplicarFiltros);
+if (categoryFilter) categoryFilter.addEventListener("change", aplicarFiltros);
+if (sortFilter) sortFilter.addEventListener("change", aplicarFiltros);
+
+// Render inicial
+renderizarProdutos(produtos);
+
     class Carrinho {
         constructor() {
             this.carrinho = JSON.parse(localStorage.getItem('carrinhoFastShoes')) || [];
