@@ -51,18 +51,18 @@ const produtos = [
 
 document.addEventListener('DOMContentLoaded', () => {
 
-function renderizarProdutos(lista) {
-    const listaProdutos = document.querySelector('.lista__produtos');
-    if (!listaProdutos) return;
+    function renderizarProdutos(lista) {
+        const listaProdutos = document.querySelector('.lista__produtos');
+        if (!listaProdutos) return;
 
-    listaProdutos.innerHTML = ""; // limpa a lista
+        listaProdutos.innerHTML = ""; // limpa a lista
 
-    lista.forEach(produto => {
-        const card = document.createElement('a');
-        card.href = `produtos-detalhes.html?id=${produto.id}`;
-        card.className = "card__produto-link";
+        lista.forEach(produto => {
+            const card = document.createElement('a');
+            card.href = `produtos-detalhes.html?id=${produto.id}`;
+            card.className = "card__produto-link";
 
-        card.innerHTML = `
+            card.innerHTML = `
             <div class="card__produto">
                 <figure>
                     <img src="${produto.imagem}" alt="${produto.nome}">
@@ -74,51 +74,51 @@ function renderizarProdutos(lista) {
                 <h6>${produto.preco}</h6>
             </div>
         `;
-        listaProdutos.appendChild(card);
-    });
-}
-
-const searchInput = document.getElementById('search-input');
-const categoryFilter = document.getElementById('category-filter');
-const sortFilter = document.getElementById('sort-filter');
-
-// Função para aplicar filtros
-function aplicarFiltros() {
-    let listaFiltrada = [...produtos];
-
-    // Busca por nome do produto
-    const termo = searchInput.value.toLowerCase();
-    if (termo) {
-        listaFiltrada = listaFiltrada.filter(p => p.nome.toLowerCase().includes(termo));
-    }
-
-    // Filtro por categoria de produto
-    const categoria = categoryFilter.value;
-    if (categoria) {
-        listaFiltrada = listaFiltrada.filter(p => p.categoria.toLowerCase() === categoria.toLowerCase());
-    }
-
-    //  Ordenação
-    if (sortFilter.value === "preco") {
-        listaFiltrada.sort((a, b) => {
-            const pa = parseFloat(a.preco.replace("R$", "").replace(".", "").replace(",", "."));
-            const pb = parseFloat(b.preco.replace("R$", "").replace(".", "").replace(",", "."));
-            return pa - pb;
+            listaProdutos.appendChild(card);
         });
-    } else if (sortFilter.value === "popularidade") {
-        listaFiltrada.sort((a, b) => a.id - b.id);
     }
 
-    renderizarProdutos(listaFiltrada);
-}
+    const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
+    const sortFilter = document.getElementById('sort-filter');
 
-// Listeners
-if (searchInput) searchInput.addEventListener("input", aplicarFiltros);
-if (categoryFilter) categoryFilter.addEventListener("change", aplicarFiltros);
-if (sortFilter) sortFilter.addEventListener("change", aplicarFiltros);
+    // Função para aplicar filtros
+    function aplicarFiltros() {
+        let listaFiltrada = [...produtos];
 
-// Render inicial
-renderizarProdutos(produtos);
+        // Busca por nome do produto
+        const termo = searchInput.value.toLowerCase();
+        if (termo) {
+            listaFiltrada = listaFiltrada.filter(p => p.nome.toLowerCase().includes(termo));
+        }
+
+        // Filtro por categoria de produto
+        const categoria = categoryFilter.value;
+        if (categoria) {
+            listaFiltrada = listaFiltrada.filter(p => p.categoria.toLowerCase() === categoria.toLowerCase());
+        }
+
+        //  Ordenação
+        if (sortFilter.value === "preco") {
+            listaFiltrada.sort((a, b) => {
+                const pa = parseFloat(a.preco.replace("R$", "").replace(".", "").replace(",", "."));
+                const pb = parseFloat(b.preco.replace("R$", "").replace(".", "").replace(",", "."));
+                return pa - pb;
+            });
+        } else if (sortFilter.value === "popularidade") {
+            listaFiltrada.sort((a, b) => a.id - b.id);
+        }
+
+        renderizarProdutos(listaFiltrada);
+    }
+
+    // Listeners
+    if (searchInput) searchInput.addEventListener("input", aplicarFiltros);
+    if (categoryFilter) categoryFilter.addEventListener("change", aplicarFiltros);
+    if (sortFilter) sortFilter.addEventListener("change", aplicarFiltros);
+
+    // Render inicial
+    renderizarProdutos(produtos);
 
     class Carrinho {
         constructor() {
@@ -265,6 +265,27 @@ renderizarProdutos(produtos);
 
             document.getElementById('imagem-produto').src = produto.imagem;
             document.getElementById('nome-produto').innerText = produto.nome;
+
+            // Mini-galeria (4 imagens repetidas só para testar)
+            const miniGaleria = document.getElementById('mini-galeria');
+            if (miniGaleria) {
+                miniGaleria.innerHTML = ""; // limpa antes
+
+                for (let i = 0; i < 4; i++) {
+                    const thumb = document.createElement('img');
+                    thumb.src = produto.imagem;
+                    thumb.alt = `${produto.nome} - imagem ${i + 1}`;
+                    thumb.classList.add("thumb-galeria");
+
+                    // evento de clique para trocar imagem principal
+                    thumb.addEventListener("click", () => {
+                        document.getElementById('imagem-produto').src = thumb.src;
+                    });
+
+                    miniGaleria.appendChild(thumb);
+                }
+            }
+
 
             document.getElementById('descricao-produto').innerText = produto.descricao;
             const btnAdicionar = secaoDetalhes.querySelector('.botao button');
